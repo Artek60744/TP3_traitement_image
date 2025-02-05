@@ -10,4 +10,8 @@ print("Question 10 : ")
 print(f"Dimensions de l'image : {boules.shape}")
 print(f"Tableau numpy de l'image \n: {boules}")
 
-#Question 11 : extraction des canaux de couleurs
+# Récupération des trois canaux RGB de l'image
+r_boules, g_boules, b_boules = cv.split(boules)
+# Affichage du rouge
+cv.imshow("Boules (Rouge)", r_boules)
+cv.waitKey(0)
