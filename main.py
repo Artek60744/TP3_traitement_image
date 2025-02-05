@@ -9,3 +9,5 @@ cv.destroyAllWindows()
 print("Question 10 : ")
 print(f"Dimensions de l'image : {boules.shape}")
 print(f"Tableau numpy de l'image \n: {boules}")
+
+#Question 11 : extraction des canaux de couleurs
