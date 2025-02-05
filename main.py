@@ -36,4 +36,66 @@ masque_rouge = cv.bitwise_or(masque1, masque2)
 cv.imshow("masque rouge", masque_rouge)
 cv.waitKey(0)
 
-#Avec imShow, afficher l’image correspondant à ce dernier tableau : les pixels blancs correspondent à ceux dont la valeur de teinte est proche de zéro.
+#question 13 :
+# Segmentation multi-canaux
+min_rouge1 = (0, 100, 50)
+max_rouge1 = (I, 255, 255)
+min_rouge2 = (180-I, 100, 50)
+max_rouge2 = (180, 255, 255)
+masque1 = cv.inRange(hsv_boules, min_rouge1, max_rouge1)
+masque2 = cv.inRange(hsv_boules, min_rouge2, max_rouge2)
+masque_rouge = cv.bitwise_or(masque1, masque2)
+cv.imshow("masque rouge segmentation multicanaux", masque_rouge)
+cv.waitKey(0)
+
+#Question 14 :
+kernel = np.ones((5, 5), np.uint8)
+fermeture = cv.morphologyEx(masque_rouge, cv.MORPH_CLOSE, kernel)
+ouverture = cv.morphologyEx(fermeture, cv.MORPH_OPEN, kernel)
+cv.imshow("Masque rouge ameliore", ouverture)
+cv.waitKey(0)
+
+# Détecter la bille avec les contours
+contours,_= cv.findContours(ouverture, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+if contours:
+    (x, y), radius = cv.minEnclosingCircle(max(contours, key=cv.contourArea))
+    center = (int(x), int(y))
+    radius = int(radius)
+    cv.circle(boules, center, radius, (255, 255, 255), 2) # cercle blanc épaisseur 2
+    cv.imshow("Boules avec contours", boules)
+    cv.waitKey(0)
+
+cv.destroyAllWindows()
+
+def drawCircleOnRedMarble(image: np.ndarray):
+    # Conversion image en HSV
+    image_hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+
+    I = 10 # seuil
+    # Segmentation multi-canaux
+    image_seg = cv.inRange(image_hsv, (0-I, 100, 0), (0+I, 255, 255))
+
+    kernel = np.ones((5, 5), np.uint8)
+    fermeture = cv.morphologyEx(image_seg, cv.MORPH_CLOSE, kernel)
+    ouverture = cv.morphologyEx(fermeture, cv.MORPH_OPEN, kernel)
+    contours,_ = cv.findContours(ouverture, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+
+    if contours:
+        (x, y), radius = cv.minEnclosingCircle(max(contours, key=cv.contourArea))
+        center = (int(x), int(y))
+        radius = int(radius)
+        cv.circle(image, center, radius, (255, 255, 255), 2) # cercle blanc épaisseur 2
+        cv.imshow("TP3 video", image)
+        cv.waitKey(100) # 100 ms
+
+### Travail sur la vidéo
+cap = cv.VideoCapture('./billes.mp4')
+if not cap.isOpened():
+    print("Erreur : impossible d'ouvrir la vidéo.")
+    exit()
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+    drawCircleOnRedMarble(frame)
+cap.release()
